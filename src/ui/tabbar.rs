@@ -1,9 +1,10 @@
 use super::Tab;
 use eframe::egui::{Color32, Pos2, Rounding, SelectableLabel, Stroke, Ui};
+use strum::IntoEnumIterator;
 
 /// Renders the tab bar with selectable tabs and draws lines to separate them.
 pub fn render_tabbar(ui: &mut Ui, current_tab: &mut Tab) {
-    let button_width = ui.available_width() / 3.0;
+    let button_width = ui.available_width() / 4.0;
 
     ui.horizontal(|ui| {
         ui.spacing_mut().item_spacing.x = 2.0; // Set spacing between buttons
@@ -15,23 +16,23 @@ pub fn render_tabbar(ui: &mut Ui, current_tab: &mut Tab) {
         customize_visuals(ui.visuals_mut());
 
         // Draw the SelectableLabels and vertical lines
-        for (i, tab) in [Tab::Tab1, Tab::Tab2, Tab::Tab3].iter().enumerate() {
+        for (i, tab) in Tab::iter().enumerate() {
             let widget = ui.add_sized(
                 [button_width, 20.0],
-                SelectableLabel::new(*current_tab == *tab, format!("Tab {}", i + 1)),
+                SelectableLabel::new(*current_tab == tab, format!("Tab {}", tab.to_string())),
             );
 
             if widget.clicked() {
-                *current_tab = *tab;
+                *current_tab = tab;
             }
 
             // Draw a horizontal line at the bottom of the selected tab
-            if *current_tab == *tab {
+            if *current_tab == tab {
                 draw_horizontal_line(ui, &widget.rect);
             }
 
             // Draw vertical lines between tabs
-            if i < 2 {
+            if i < Tab::iter().count() - 1 {
                 draw_vertical_line(ui, &widget.rect);
             }
         }
@@ -46,7 +47,6 @@ fn customize_visuals(visuals: &mut eframe::egui::Visuals) {
     visuals.widgets.active.rounding = Rounding::ZERO;
     visuals.widgets.inactive.rounding = Rounding::ZERO;
     visuals.widgets.hovered.rounding = Rounding::ZERO;
-    visuals.widgets.noninteractive.rounding = Rounding::ZERO;
 
     visuals.widgets.hovered.bg_stroke = Stroke::NONE;
     visuals.widgets.inactive.bg_fill = Color32::TRANSPARENT;

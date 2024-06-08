@@ -1,10 +1,10 @@
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum QuestionType {
     Options(Vec<OptionType>),
     ManualInputArray(Vec<String>),
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub struct OptionType {
     pub value: String,
     pub is_checked: bool,

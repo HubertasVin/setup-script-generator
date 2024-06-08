@@ -25,14 +25,17 @@ impl App for SetupGenerator {
             ScrollArea::vertical().max_width(5.0).show(ui, |ui| {
                 ui.set_min_size(Vec2::new(available_width, 0.0)); // Extend the ScrollArea to the full width
                 match self.current_tab {
-                    Tab::Tab1 => {
+                    Tab::Debian => {
                         render_questions_box(self, ui);
                     }
-                    Tab::Tab2 => {
-                        ui.label("This is Tab 2");
+                    Tab::Fedora => {
+                        ui.label("This is Tab Fedora");
                     }
-                    Tab::Tab3 => {
-                        ui.label("This is Tab 3");
+                    Tab::Arch => {
+                        ui.label("This is Tab Arch");
+                    }
+                    Tab::Any => {
+                        ui.label("This is Tab Any");
                     }
                 }
             });

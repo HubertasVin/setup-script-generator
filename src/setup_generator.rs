@@ -1,24 +1,25 @@
 use eframe::egui::{self, FontData, FontDefinitions, FontFamily, FontId, TextStyle};
+use strum_macros::{Display, EnumCount, EnumIter};
 
 use crate::question_type::{OptionType, QuestionType};
 
-#[derive(PartialEq, Clone, Copy)]
+#[derive(PartialEq, Clone, Copy, Debug, Display, EnumIter, EnumCount)]
 pub enum Tab {
-    Tab1,
-    Tab2,
-    Tab3,
+    Debian,
+    Fedora,
+    Arch,
+    Any,
 }
 
 pub struct SetupGenerator {
     pub sections: Vec<QuestionType>,
     pub initialized: bool,
     pub current_tab: Tab,
-    pub window_dimensions: egui::Vec2,
 }
 
 impl SetupGenerator {
     /// Creates a new instance of SetupGenerator.
-    pub fn new(window_dimensions: egui::Vec2) -> Self {
+    pub fn new() -> Self {
         let mut sections = vec![];
         sections.push(QuestionType::Options(vec![
             OptionType::new("Option 1".to_string(), false),
@@ -34,8 +35,7 @@ impl SetupGenerator {
         SetupGenerator {
             sections,
             initialized: false,
-            current_tab: Tab::Tab1,
-            window_dimensions: window_dimensions,
+            current_tab: Tab::Debian,
         }
     }
 

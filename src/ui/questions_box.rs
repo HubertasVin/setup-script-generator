@@ -1,8 +1,9 @@
-use eframe::egui::{
-    self, Color32, Pos2, Rounding, Stroke, Ui,
-};
+use eframe::egui::{self, Color32, Pos2, Rounding, Stroke, Ui};
 
-use crate::{question_type::QuestionType, setup_generator::SetupGenerator};
+use crate::{
+    question_type::{OptionType, QuestionType},
+    setup_generator::SetupGenerator,
+};
 
 pub fn render_questions_box(setup_generator: &mut SetupGenerator, ui: &mut Ui) {
     let original_visuals = ui.visuals().clone();
@@ -11,43 +12,69 @@ pub fn render_questions_box(setup_generator: &mut SetupGenerator, ui: &mut Ui) {
         let window_width = ui.available_width();
         match &mut setup_generator.sections[i] {
             QuestionType::Options(options) => {
-                // Use a wrapping layout for the main axis
-                let grid_layout = egui::Grid::new(format!("options_grid_{}", i)).show(ui, |ui| {
-                    let checkbox_width = 20.0;
-                    let text_edit_width = 150.0;
-                    let gap_width = 10.0;
-                    let option_width = checkbox_width + text_edit_width + gap_width;
-                    let x_capacity = (window_width / option_width).floor() as usize;
-                    let mut index = 0;
+                const ITEM_WIDTH: f32 = 20.0;
+                const ITEM_HEIGHT: f32 = 20.0;
+                const TEXT_EDIT_WIDTH: f32 = 150.0;
+                const GAP_WIDTH: f32 = 10.0;
 
-                    for _ in 0..options.len() {
+                let option_width = (ITEM_WIDTH * 2.0) + TEXT_EDIT_WIDTH + (GAP_WIDTH * 2.0);
+                let x_capacity = (window_width / option_width).floor() as usize;
+
+                let mut to_remove: Vec<usize> = Vec::new();
+                let mut add_new_option = false;
+
+                let grid_layout = egui::Grid::new(format!("options_grid_{}", i)).show(ui, |ui| {
+                    for (index, option) in options.iter_mut().enumerate() {
                         ui.horizontal(|ui| {
-                            let option = &mut options[index];
-                            // Add the checkbox
+                            if ui
+                                .add_sized([ITEM_WIDTH, ITEM_HEIGHT], egui::Button::new("🗑"))
+                                .clicked()
+                            {
+                                to_remove.push(index);
+                            };
+
+                            ui.spacing_mut().item_spacing.x = GAP_WIDTH;
                             ui.add_sized(
-                                [checkbox_width, 20.0],
+                                [ITEM_WIDTH, ITEM_HEIGHT],
                                 egui::Checkbox::new(&mut option.is_checked, ""),
                             );
 
                             customize_visuals(&mut ui.visuals_mut());
-
-                            // Add the text edit field
                             ui.add_sized(
-                                [text_edit_width, 20.0],
-                                egui::TextEdit::singleline(&mut option.value),
+                                [TEXT_EDIT_WIDTH, ITEM_HEIGHT],
+                                egui::TextEdit::singleline(&mut option.value)
+                                    .hint_text("package-name"),
                             );
+                            ui.spacing_mut().item_spacing.x = GAP_WIDTH;
 
                             *ui.visuals_mut() = original_visuals.clone();
-
-                            // Ensure there's space between elements
-                            ui.spacing_mut().item_spacing.x = gap_width;
-                            index += 1;
                         });
-                        if x_capacity != 0 && index % x_capacity == 0 {
+
+                        if x_capacity != 0 && (index + 1) % x_capacity == 0 {
                             ui.end_row();
                         }
                     }
+
+                    if options.len() % x_capacity != 0 {
+                        ui.end_row();
+                    }
+
+                    if ui
+                        .add_sized([ITEM_WIDTH, ITEM_HEIGHT], egui::Button::new("➕"))
+                        .clicked()
+                    {
+                        add_new_option = true;
+                    }
                 });
+
+                for index in to_remove.iter().rev() {
+                    options.remove(*index);
+                }
+
+                if add_new_option {
+                    options.push(OptionType::new("".to_string(), false));
+                }
+
                 draw_horizontal_line(ui, &grid_layout.response.rect);
             }
             QuestionType::ManualInputArray(values) => {
@@ -63,7 +90,6 @@ fn customize_visuals(visuals: &mut eframe::egui::Visuals) {
     visuals.widgets.active.rounding = Rounding::ZERO;
     visuals.widgets.inactive.rounding = Rounding::ZERO;
     visuals.widgets.hovered.rounding = Rounding::ZERO;
-    visuals.widgets.noninteractive.rounding = Rounding::ZERO;
 
     visuals.widgets.hovered.bg_stroke = Stroke::NONE;
     visuals.widgets.active.bg_fill = Color32::TRANSPARENT;
