@@ -1,5 +1,6 @@
 mod questions_box;
 mod tabbar;
+mod tab;
 
 use crate::setup_generator::{configure_fonts, configure_text_styles};
 
@@ -9,6 +10,7 @@ use eframe::{
     App,
 };
 use questions_box::render_questions_box;
+use tab::render_tab;
 
 impl App for SetupGenerator {
     fn update(&mut self, ctx: &eframe::egui::Context, _frame: &mut eframe::Frame) {
@@ -24,20 +26,7 @@ impl App for SetupGenerator {
             scroll_area_style(ctx);
             ScrollArea::vertical().max_width(5.0).show(ui, |ui| {
                 ui.set_min_size(Vec2::new(available_width, 0.0)); // Extend the ScrollArea to the full width
-                match self.current_tab {
-                    Tab::Debian => {
-                        render_questions_box(self, ui);
-                    }
-                    Tab::Fedora => {
-                        ui.label("This is Tab Fedora");
-                    }
-                    Tab::Arch => {
-                        ui.label("This is Tab Arch");
-                    }
-                    Tab::Any => {
-                        ui.label("This is Tab Any");
-                    }
-                }
+                render_tab(self, ui);
             });
         });
     }

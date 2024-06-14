@@ -15,27 +15,34 @@ pub struct SetupGenerator {
     pub sections: Vec<QuestionType>,
     pub initialized: bool,
     pub current_tab: Tab,
+    pub selected_new_question_type: QuestionType,
 }
 
 impl SetupGenerator {
     /// Creates a new instance of SetupGenerator.
     pub fn new() -> Self {
         let mut sections = vec![];
-        sections.push(QuestionType::Options(vec![
-            OptionType::new("Option 1".to_string(), false),
-            OptionType::new("Option 2".to_string(), false),
-            OptionType::new("Option 3".to_string(), false),
-            OptionType::new("Option 3".to_string(), false),
-            OptionType::new("Option 3".to_string(), false),
-            OptionType::new("Option 3".to_string(), false),
-            OptionType::new("Option 3".to_string(), false),
-        ]));
-
+        sections.push(QuestionType::Options {
+            title: "Choose a title".to_owned(),
+            questions: vec![
+                OptionType::new("Option 1".to_string(), false),
+                OptionType::new("Option 2".to_string(), false),
+                OptionType::new("Option 3".to_string(), false),
+                OptionType::new("Option 3".to_string(), false),
+                OptionType::new("Option 3".to_string(), false),
+                OptionType::new("Option 3".to_string(), false),
+                OptionType::new("Option 3".to_string(), false),
+            ],
+        });
 
         SetupGenerator {
             sections,
             initialized: false,
             current_tab: Tab::Debian,
+            selected_new_question_type: QuestionType::Options {
+                title: "Choose a title".to_owned(),
+                questions: Vec::new(),
+            },
         }
     }
 

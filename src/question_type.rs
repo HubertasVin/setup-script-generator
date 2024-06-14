@@ -1,7 +1,36 @@
-#[derive(Debug, Clone)]
+use std::fmt::Debug;
+
+use strum_macros::{Display, EnumCount, EnumIter};
+
+#[derive(PartialEq, Clone, Display, EnumIter, EnumCount)]
 pub enum QuestionType {
-    Options(Vec<OptionType>),
-    ManualInputArray(Vec<String>),
+    Options {
+        title: String,
+        questions: Vec<OptionType>,
+    },
+    ManualInputArray {
+        title: String,
+        questions: Vec<String>,
+    },
+}
+
+impl Debug for QuestionType {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            QuestionType::Options {
+                title: _,
+                questions: _,
+            } => {
+                write!(f, "Options")
+            }
+            QuestionType::ManualInputArray {
+                title: _,
+                questions: _,
+            } => {
+                write!(f, "Manual text input")
+            }
+        }
+    }
 }
 
 #[derive(Debug, PartialEq, Clone)]
@@ -13,21 +42,5 @@ pub struct OptionType {
 impl OptionType {
     pub fn new(value: String, is_checked: bool) -> OptionType {
         OptionType { value, is_checked }
-    }
-}
-
-impl QuestionType {
-    pub fn add_option(&mut self, option: OptionType) {
-        match self {
-            QuestionType::Options(options) => options.push(option),
-            _ => panic!("Cannot add option to non-option question type"),
-        }
-    }
-
-    pub fn add_manual_input(&mut self, value: String) {
-        match self {
-            QuestionType::ManualInputArray(values) => values.push(value),
-            _ => panic!("Cannot add manual input to non-manual input question type"),
-        }
     }
 }
